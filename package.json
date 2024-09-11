@@ -8,7 +8,10 @@
     "format": "prettier --write '{packages,examples}/**/*.ts'",
     "build-test-site": "./test-site/build.sh",
     "serve-test-site": "http-server ./test-site/dist",
-    "dev": "./scripts/dev.sh"
+    "dev": "./scripts/dev.sh",
+    "dist:react": "rm -rf ./vad-react && mkdir -p ./vad-react && cp -R ./packages/react/dist ./packages/react/package.json ./vad-react/",
+    "dist:web": "rm -rf ./vad-web && mkdir -p ./vad-web && cp -R ./packages/web/dist ./packages/web/package.json ./packages/web/webpack.config.index.js ./packages/web/webpack.config.worklet.js ./vad-web/",
+    "dist": "npm run dist:web && npm run dist:react"
   },
   "private": true,
   "devDependencies": {
