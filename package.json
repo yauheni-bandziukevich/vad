@@ -1,36 +1,34 @@
 {
-  "version": "0.0.0",
-  "license": "ISC",
-  "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present",
-    "format": "prettier --write '{packages,examples}/**/*.ts'",
-    "build-test-site": "./test-site/build.sh",
-    "serve-test-site": "http-server ./test-site/dist",
-    "dev": "./scripts/dev.sh",
-    "dist:react": "rm -rf ./vad-react && mkdir -p ./vad-react && cp -R ./packages/react/dist ./packages/react/package.json ./vad-react/",
-    "dist:web": "rm -rf ./vad-web && mkdir -p ./vad-web && cp -R ./packages/web/dist ./packages/web/package.json ./packages/web/webpack.config.index.js ./packages/web/webpack.config.worklet.js ./vad-web/",
-    "dist": "npm run dist:web && npm run dist:react"
-  },
-  "private": true,
-  "devDependencies": {
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
-    "esbuild": "^0.17.10",
-    "http-server": "^14.1.1",
-    "live-server": "^1.2.2",
-    "nodemon": "^3.0.2",
-    "prettier": "^2.6.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "workspaces": [
-    "packages/node",
-    "packages/web",
-    "packages/react"
+  "name": "@ricky0123/vad-react",
+  "description": "Powerful, user-friendly, client-side voice activity detector (VAD) for React apps",
+  "keywords": [
+    "speech-recognition",
+    "wake-word-detection",
+    "machine-learning",
+    "voice-activity-detection",
+    "vad",
+    "onnx",
+    "voice-control",
+    "offline-speech-recognition",
+    "react"
   ],
+  "homepage": "https://github.com/ricky0123/vad",
+  "version": "0.0.24",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "devDependencies": {
+    "@types/react": "^18.0.28"
+  },
   "dependencies": {
-    "typescript": "^5.2.2"
+    "onnxruntime-web": "^1.14.0",
+    "@ricky0123/vad-web": "git+ssh://git@github.com/yauheni-bandziukevich/vad.git#rel/web"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
   }
 }
