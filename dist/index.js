@@ -23,134 +23,31 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.useMicVAD = exports.defaultReactRealTimeVADOptions = exports.utils = void 0;
-const vad_web_1 = require("@ricky0123/vad-web");
-const react_1 = __importStar(require("react"));
-var vad_web_2 = require("@ricky0123/vad-web");
-Object.defineProperty(exports, "utils", { enumerable: true, get: function () { return vad_web_2.utils; } });
-const defaultReactOptions = {
-    startOnLoad: true,
-    userSpeakingThreshold: 0.6,
+exports.defaultRealTimeVADOptions = exports.AudioNodeVAD = exports.MicVAD = exports.NonRealTimeVAD = exports.Message = exports.FrameProcessor = exports.utils = exports.defaultNonRealTimeVADOptions = void 0;
+const ort = __importStar(require("onnxruntime-web"));
+const _common_1 = require("./_common");
+Object.defineProperty(exports, "FrameProcessor", { enumerable: true, get: function () { return _common_1.FrameProcessor; } });
+Object.defineProperty(exports, "Message", { enumerable: true, get: function () { return _common_1.Message; } });
+const utils_1 = require("./utils");
+const default_model_fetcher_1 = require("./default-model-fetcher");
+const asset_path_1 = require("./asset-path");
+exports.defaultNonRealTimeVADOptions = {
+    modelURL: (0, asset_path_1.assetPath)("silero_vad.onnx"),
+    modelFetcher: default_model_fetcher_1.defaultModelFetcher,
 };
-exports.defaultReactRealTimeVADOptions = {
-    ...vad_web_1.defaultRealTimeVADOptions,
-    ...defaultReactOptions,
-};
-const reactOptionKeys = Object.keys(defaultReactOptions);
-const vadOptionKeys = Object.keys(vad_web_1.defaultRealTimeVADOptions);
-const _filter = (keys, obj) => {
-    return keys.reduce((acc, key) => {
-        acc[key] = obj[key];
-        return acc;
-    }, {});
-};
-function useOptions(options) {
-    options = { ...exports.defaultReactRealTimeVADOptions, ...options };
-    const reactOptions = _filter(reactOptionKeys, options);
-    const vadOptions = _filter(vadOptionKeys, options);
-    return [reactOptions, vadOptions];
-}
-function useEventCallback(fn) {
-    const ref = react_1.default.useRef(fn);
-    // we copy a ref to the callback scoped to the current state/props on each render
-    useIsomorphicLayoutEffect(() => {
-        ref.current = fn;
-    });
-    return react_1.default.useCallback((...args) => ref.current.apply(void 0, args), []);
-}
-function useMicVAD(options) {
-    const [reactOptions, vadOptions] = useOptions(options);
-    const [userSpeaking, updateUserSpeaking] = (0, react_1.useReducer)((state, isSpeechProbability) => isSpeechProbability > reactOptions.userSpeakingThreshold, false);
-    const [loading, setLoading] = (0, react_1.useState)(true);
-    const [errored, setErrored] = (0, react_1.useState)(false);
-    const [listening, setListening] = (0, react_1.useState)(false);
-    const [vad, setVAD] = (0, react_1.useState)(null);
-    const userOnFrameProcessed = useEventCallback(vadOptions.onFrameProcessed);
-    vadOptions.onFrameProcessed = useEventCallback((probs) => {
-        updateUserSpeaking(probs.isSpeech);
-        userOnFrameProcessed;
-    });
-    const { onSpeechEnd, onSpeechStart, onVADMisfire } = vadOptions;
-    const _onSpeechEnd = useEventCallback(onSpeechEnd);
-    const _onSpeechStart = useEventCallback(onSpeechStart);
-    const _onVADMisfire = useEventCallback(onVADMisfire);
-    vadOptions.onSpeechEnd = _onSpeechEnd;
-    vadOptions.onSpeechStart = _onSpeechStart;
-    vadOptions.onVADMisfire = _onVADMisfire;
-    (0, react_1.useEffect)(() => {
-        let myvad;
-        let canceled = false;
-        const setup = async () => {
-            try {
-                myvad = await vad_web_1.MicVAD.new(vadOptions);
-                if (canceled) {
-                    myvad.destroy();
-                    return;
-                }
-            }
-            catch (e) {
-                setLoading(false);
-                if (e instanceof Error) {
-                    setErrored({ message: e.message });
-                }
-                else {
-                    // @ts-ignore
-                    setErrored({ message: e });
-                }
-                return;
-            }
-            setVAD(myvad);
-            setLoading(false);
-            if (reactOptions.startOnLoad) {
-                myvad?.start();
-                setListening(true);
-            }
+class NonRealTimeVAD extends _common_1.PlatformAgnosticNonRealTimeVAD {
+    static async new(options = {}) {
+        const { modelURL, modelFetcher } = {
+            ...exports.defaultNonRealTimeVADOptions,
+            ...options,
         };
-        setup().catch((e) => {
-            console.log("Well that didn't work");
-        });
-        return function cleanUp() {
-            myvad?.destroy();
-            canceled = true;
-            if (!loading && !errored) {
-                setListening(false);
-            }
-        };
-    }, []);
-    const pause = () => {
-        if (!loading && !errored) {
-            vad?.pause();
-            setListening(false);
-        }
-    };
-    const start = () => {
-        if (!loading && !errored) {
-            vad?.start();
-            setListening(true);
-        }
-    };
-    const toggle = () => {
-        if (listening) {
-            pause();
-        }
-        else {
-            start();
-        }
-    };
-    return {
-        listening,
-        errored,
-        loading,
-        userSpeaking,
-        pause,
-        start,
-        toggle,
-    };
+        return await this._new(() => modelFetcher(modelURL), ort, options);
+    }
 }
-exports.useMicVAD = useMicVAD;
-const useIsomorphicLayoutEffect = typeof window !== "undefined" &&
-    typeof window.document !== "undefined" &&
-    typeof window.document.createElement !== "undefined"
-    ? react_1.default.useLayoutEffect
-    : react_1.default.useEffect;
+exports.NonRealTimeVAD = NonRealTimeVAD;
+exports.utils = { audioFileToArray: utils_1.audioFileToArray, ..._common_1.utils };
+var real_time_vad_1 = require("./real-time-vad");
+Object.defineProperty(exports, "MicVAD", { enumerable: true, get: function () { return real_time_vad_1.MicVAD; } });
+Object.defineProperty(exports, "AudioNodeVAD", { enumerable: true, get: function () { return real_time_vad_1.AudioNodeVAD; } });
+Object.defineProperty(exports, "defaultRealTimeVADOptions", { enumerable: true, get: function () { return real_time_vad_1.defaultRealTimeVADOptions; } });
 //# sourceMappingURL=index.js.map

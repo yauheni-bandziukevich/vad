@@ -1,71 +1,24 @@
-import type { RealTimeVADOptions } from "@ricky0123/vad-web";
-export { utils } from "@ricky0123/vad-web";
-interface ReactOptions {
-    startOnLoad: boolean;
-    userSpeakingThreshold: number;
+import { PlatformAgnosticNonRealTimeVAD, FrameProcessor, FrameProcessorOptions, Message, NonRealTimeVADOptions } from "./_common";
+import { audioFileToArray } from "./utils";
+export interface NonRealTimeVADOptionsWeb extends NonRealTimeVADOptions {
+    modelURL: string;
+    modelFetcher: (path: string) => Promise<ArrayBuffer>;
 }
-export type ReactRealTimeVADOptions = RealTimeVADOptions & ReactOptions;
-export declare const defaultReactRealTimeVADOptions: {
-    startOnLoad: boolean;
-    userSpeakingThreshold: number;
-    stream: MediaStream;
-    positiveSpeechThreshold: number;
-    negativeSpeechThreshold: number;
-    redemptionFrames: number;
-    frameSamples: number;
-    preSpeechPadFrames: number;
-    minSpeechFrames: number;
-    submitUserSpeechOnPause: boolean;
-    onFrameProcessed: (probabilities: import("@ricky0123/vad-web/dist/_common").SpeechProbabilities, frame: Float32Array) => any;
-    onVADMisfire: () => any;
-    onSpeechStart: () => any;
-    onSpeechEnd: (audio: Float32Array) => any;
-    ortConfig?: ((ort: any) => any) | undefined;
-    workletURL: string;
-    modelURL: string;
-    modelFetcher: (path: string) => Promise<ArrayBuffer>;
-} | {
-    startOnLoad: boolean;
-    userSpeakingThreshold: number;
-    additionalAudioConstraints?: {
-        advanced?: MediaTrackConstraintSet[] | undefined;
-        aspectRatio?: ConstrainDouble | undefined;
-        deviceId?: ConstrainDOMString | undefined;
-        displaySurface?: ConstrainDOMString | undefined;
-        facingMode?: ConstrainDOMString | undefined;
-        frameRate?: ConstrainDouble | undefined;
-        groupId?: ConstrainDOMString | undefined;
-        height?: ConstrainULong | undefined;
-        sampleRate?: ConstrainULong | undefined;
-        sampleSize?: ConstrainULong | undefined;
-        width?: ConstrainULong | undefined;
-    } | undefined;
-    stream: undefined;
-    positiveSpeechThreshold: number;
-    negativeSpeechThreshold: number;
-    redemptionFrames: number;
-    frameSamples: number;
-    preSpeechPadFrames: number;
-    minSpeechFrames: number;
-    submitUserSpeechOnPause: boolean;
-    onFrameProcessed: (probabilities: import("@ricky0123/vad-web/dist/_common").SpeechProbabilities, frame: Float32Array) => any;
-    onVADMisfire: () => any;
-    onSpeechStart: () => any;
-    onSpeechEnd: (audio: Float32Array) => any;
-    ortConfig?: ((ort: any) => any) | undefined;
-    workletURL: string;
+export declare const defaultNonRealTimeVADOptions: {
     modelURL: string;
     modelFetcher: (path: string) => Promise<ArrayBuffer>;
 };
-export declare function useMicVAD(options: Partial<ReactRealTimeVADOptions>): {
-    listening: boolean;
-    errored: false | {
-        message: string;
-    };
-    loading: boolean;
-    userSpeaking: boolean;
-    pause: () => void;
-    start: () => void;
-    toggle: () => void;
+declare class NonRealTimeVAD extends PlatformAgnosticNonRealTimeVAD {
+    static new(options?: Partial<NonRealTimeVADOptionsWeb>): Promise<NonRealTimeVAD>;
+}
+export declare const utils: {
+    minFramesForTargetMS: typeof import("./_common/utils").minFramesForTargetMS;
+    arrayBufferToBase64: typeof import("./_common/utils").arrayBufferToBase64;
+    encodeWAV: typeof import("./_common/utils").encodeWAV;
+    audioFileToArray: typeof audioFileToArray;
 };
+export { FrameProcessor, Message, NonRealTimeVAD };
+export type { FrameProcessorOptions, NonRealTimeVADOptions };
+export { MicVAD, AudioNodeVAD, defaultRealTimeVADOptions, } from "./real-time-vad";
+export type { RealTimeVADOptions } from "./real-time-vad";
 //# sourceMappingURL=index.d.ts.map
