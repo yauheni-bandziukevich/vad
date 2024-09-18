@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "onnxruntime-web": "^1.14.0",
-    "@ricky0123/vad-web": "git+ssh://git@github.com/yauheni-bandziukevich/vad.git#rel/web"
+    "@ricky0123/vad-web": "https://github.com/yauheni-bandziukevich/vad.git#rel/web"
   },
   "peerDependencies": {
     "react": "^18",
